@@ -1,0 +1,11 @@
+customer_id,name,usage_drop,open_tickets,payment_status,region,segment
+C001,Customer A,75,8,failed,US,Enterprise
+C002,Customer B,45,3,active,US,SMB
+C003,Customer C,60,12,failed,EU,Enterprise
+C004,Customer D,30,2,active,US,SMB
+C005,Customer E,80,15,failed,US,Enterprise
+C006,Customer F,20,1,active,EU,SMB
+C007,Customer G,55,6,active,US,Mid-Market
+C008,Customer H,70,9,failed,EU,Enterprise
+C009,Customer I,25,0,active,US,SMB
+C010,Customer J,65,7,active,EU,Mid-Market

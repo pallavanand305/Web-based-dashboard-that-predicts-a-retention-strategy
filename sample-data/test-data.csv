@@ -1,0 +1,6 @@
+customer_id,name,usage_drop,open_tickets,payment_status,region,segment
+T1001,Test Corp 1001,25.67,3,active,US,Enterprise
+T1002,Validation Inc 1002,82.34,14,failed,EU,SMB
+T1003,QA Systems 1003,41.23,4,active,APAC,Mid-Market
+T1004,Test Corp 1004,73.89,11,failed,US,Enterprise
+T1005,Validation Inc 1005,18.45,1,active,EU,SMB

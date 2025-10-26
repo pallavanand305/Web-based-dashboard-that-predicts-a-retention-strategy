@@ -1,0 +1,11 @@
+customer_id,name,usage_drop,open_tickets,payment_status,region,segment
+C0001,Alpha Corp 1,15.23,2,active,US,Enterprise
+C0002,Beta Inc 2,78.45,12,failed,EU,SMB
+C0003,Gamma LLC 3,45.67,5,active,APAC,Mid-Market
+C0004,Delta Systems 4,89.12,15,failed,US,Enterprise
+C0005,Epsilon Tech 5,23.45,1,active,EU,SMB
+C0006,Alpha Corp 6,67.89,8,active,US,Mid-Market
+C0007,Beta Inc 7,34.56,3,active,APAC,Enterprise
+C0008,Gamma LLC 8,91.23,18,failed,EU,SMB
+C0009,Delta Systems 9,12.34,0,active,US,Mid-Market
+C0010,Epsilon Tech 10,56.78,6,active,APAC,Enterprise

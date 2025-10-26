@@ -1,0 +1,55 @@
+service: retention-dashboard-api
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    host: 0.0.0.0
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: local
+  environment:
+    CUSTOMERS_TABLE: retention-dashboard-api-customers-local
+    SCORES_TABLE: retention-dashboard-api-scores-local
+    DATA_BUCKET: retention-dashboard-api-data-local
+
+functions:
+  getLatestScores:
+    handler: handlers/scores.getLatest
+    events:
+      - http:
+          path: scores/latest
+          method: get
+          cors: true
+
+  getCustomerScore:
+    handler: handlers/customers.getScore
+    events:
+      - http:
+          path: customers/{id}/score
+          method: get
+          cors: true
+
+  getAggregatedCustomers:
+    handler: handlers/customers.getAggregated
+    events:
+      - http:
+          path: customers
+          method: get
+          cors: true
+
+  getUploadUrl:
+    handler: handlers/upload.getSignedUrl
+    events:
+      - http:
+          path: ingest/upload-url
+          method: post
+          cors: true
+
+  processData:
+    handler: handlers/dataIngestion.processUploadedData

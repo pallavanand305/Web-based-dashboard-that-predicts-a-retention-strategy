@@ -1,0 +1,132 @@
+service: retention-dashboard-api
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    host: 0.0.0.0
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: dev
+  environment:
+    CUSTOMERS_TABLE: ${self:service}-customers-${self:provider.stage}
+    SCORES_TABLE: ${self:service}-scores-${self:provider.stage}
+    DATA_BUCKET: ${self:service}-data-${self:provider.stage}
+    SCORING_TOPIC_ARN: !Ref ScoringTopic
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CUSTOMERS_TABLE}"
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCORES_TABLE}"
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+        - s3:DeleteObject
+      Resource: "arn:aws:s3:::${self:provider.environment.DATA_BUCKET}/*"
+    - Effect: Allow
+      Action:
+        - sns:Publish
+      Resource: !Ref ScoringTopic
+
+functions:
+  getLatestScores:
+    handler: handlers/scores.getLatest
+    events:
+      - http:
+          path: scores/latest
+          method: get
+          cors: true
+
+  getCustomerScore:
+    handler: handlers/customers.getScore
+    events:
+      - http:
+          path: customers/{id}/score
+          method: get
+          cors: true
+
+  getAggregatedCustomers:
+    handler: handlers/customers.getAggregated
+    events:
+      - http:
+          path: customers
+          method: get
+          cors: true
+
+  getUploadUrl:
+    handler: handlers/upload.getSignedUrl
+    events:
+      - http:
+          path: ingest/upload-url
+          method: post
+          cors: true
+
+  processData:
+    handler: handlers/dataIngestion.processUploadedData
+    events:
+      - sns:
+          topicName: ${self:service}-scoring-topic
+          arn:
+            Ref: ScoringTopic
+
+resources:
+  Resources:
+    CustomersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.CUSTOMERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: customerId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: customerId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    ScoresTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.SCORES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: scoreId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: scoreId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    DataBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.DATA_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders: ['*']
+              AllowedMethods: [GET, PUT, POST, DELETE]
+              AllowedOrigins: ['*']
+
+    ScoringTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:service}-scoring-topic
+        DisplayName: Customer Scoring Topic
